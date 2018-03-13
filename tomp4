@@ -59,7 +59,7 @@ case $opt in
   echo '  -sub  Include first Sub-Title Stream (graphical subtitles)'
   echo '  -burn|burnin Burnin subtitles from first subtitle stream (text subtitles)'
   echo '  -subfile=/path/to/subtile/text/file Burnin subtitles from external text file'
-#  echo '  -title="<Title>" Force set Title metadata (Note: only encodes 1 file, rest are ignored)'
+  echo '  -title="<Title>" Force Title metadata (Note: only encodes first file, rest are ignored)'
   echo
   echo '  -480 | -576 | -720 | -1080 Force destination file to 480, 576, 720 or 1080 lines.'
   echo '  -640 | -800 | -1280 | -1920 Force destination file to 640, 800, 1280 or 1920 columns.'
