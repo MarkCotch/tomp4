@@ -12,10 +12,11 @@
 # with Chromecast.  By default we encode with higher audio line levels.
 #
 
-_version='0.2.6'
+_version='0.2.7'
 _dest_dir="$HOME/mp4"
-#_vcodec="libx264"
 _vcodec="h264"
+# If we have available CUDA hardware encoder we will have a preference for that.
+ffmpeg -codecs 2>&1 | grep h264_nvenc  && _vcodec='h264_nvenc'
 _acodec="aac"
 _af1='-af'
 _af2='volume=3'
@@ -37,6 +38,7 @@ _burnin1=''
 _burnin2=''
 _level=''
 
+
 for opt in "$@"
 do
 
@@ -53,7 +55,7 @@ case $opt in
   echo '  -vol=# Set Audio Volume level.  Default=3'
   echo '  -ss=# Select alternate Subtitle Stream'
   echo '  -d=/path/to/destination/folder  Destination directory (Default: $HOME/mp4)'
-  echo '  -264  Force H.264 transcoding. (Default action)'
+  echo '  -264  Force H.264 (libx264) software encoding.'
   echo '  -vpreset= ultrafast,superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo'
   echo '            default=medium'
   echo '  -stripmeta   Strip metadata from stream. Default is to passthrough metadata.'
@@ -94,7 +96,7 @@ case $opt in
   _af2="volume=${opt#*=}"
  ;;
 
-# This forces H.264 codec (default)
+# This forces H.264 software codec (libx264).
   -264)
   _vcodec="libx264"
   ;;
