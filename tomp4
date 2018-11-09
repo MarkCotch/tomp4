@@ -14,7 +14,8 @@
 
 _version='0.2.6'
 _dest_dir="$HOME/mp4"
-_vcodec="libx264"
+#_vcodec="libx264"
+_vcodec="h264"
 _acodec="aac"
 _af1='-af'
 _af2='volume=3'
