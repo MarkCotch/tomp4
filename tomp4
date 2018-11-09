@@ -1,5 +1,5 @@
 #!/bin/bash
-# tomp4 V0.2.5
+# tomp4 V0.2.7
 # Copyright (c) 2015 Written by Mark Coccimiglio (mark@coccimiglio.net)
 # Free for non-commercial use.  If you are making money on the use of this
 # script then contact me with a reasonable offer for licensing.
@@ -15,9 +15,9 @@
 _version='0.2.7'
 _dest_dir="$HOME/mp4"
 _vcodec="h264"
-# If we have available CUDA hardware encoder we will have a preference for that.
-ffmpeg -codecs 2>&1 | grep h264_nvenc  && _vcodec='h264_nvenc'
 _acodec="aac"
+_hwaccel1=''
+_hwaccel2=''
 _af1='-af'
 _af2='volume=3'
 _vstream='0'
@@ -38,6 +38,13 @@ _burnin1=''
 _burnin2=''
 _level=''
 
+# If we have available CUDA hardware encoder we will have a preference for that.
+ffmpeg -codecs 2>&1 | grep -q h264_nvenc  && _vcodec='h264_nvenc'
+
+# Care must be taken if this is enabled.  This forces the Input stream to be handled
+# by a specific hardware encoder.  If the input stream is not a supported codec then
+# ffmpeg may fault out or corrupt the input stream.  YMMV.
+#ffmpeg -hwaccels 2>&1 | grep -q cuvid && ( _hwaccel1='-hwaccel' ;  _hwaccel2='cuvid' )
 
 for opt in "$@"
 do
@@ -79,6 +86,8 @@ case $opt in
   _vcodec="copy"
   _vf=''
   _scale_vid=''
+  _hwaccel1=''
+  _hwaccel2=''
   ;;
 
 # Copy original Audio codec data into new file unchanged.
@@ -246,7 +255,8 @@ case $opt in
 
       if [ $_title1 ] ; then
 
-       /usr/bin/time nice -n 15 ffmpeg -i "$opt" -strict -2 $_meta1 $_meta2 \
+       /usr/bin/time nice -n 15 ffmpeg $_hwaccel1 $_hwaccel2  -i "$opt" \
+        -strict -2 $_meta1 $_meta2 \
         -map 0:v:${_vstream} $_vf $_scale_vid -vcodec $_vcodec \
         $_sub1 $_sub2 $_sub3 $_sub4 \
         -map 0:a:${_astream} -acodec $_acodec $_af1 $_af2 -metadata:s:a:1 language=eng \
@@ -258,7 +268,8 @@ case $opt in
 
       else
 
-       /usr/bin/time nice -n 15 ffmpeg -i "$opt" -strict -2 $_meta1 $_meta2 \
+       /usr/bin/time nice -n 15 ffmpeg $_hwaccel1 $_hwaccel2 -i "$opt" \
+        -strict -2 $_meta1 $_meta2 \
         -map 0:v:${_vstream} $_vf $_scale_vid -preset $_vpreset -vcodec $_vcodec \
         $_sub1 $_sub2 $_sub3 $_sub4 \
         -map 0:a:${_astream} -acodec $_acodec $_af1 $_af2 -metadata:s:a:1 language=eng \
