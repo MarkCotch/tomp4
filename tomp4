@@ -38,14 +38,16 @@ _burnin1=''
 _burnin2=''
 _level=''
 
-# If we have available CUDA hardware encoder we will have a preference for that.
-ffmpeg -codecs 2>&1 | grep -q h264_nvenc  && _vcodec='h264_nvenc'
+# If we have an available CUDA hardware encoder we will have a preference for that.
+
+ffmpeg -codecs 2> /dev/null | grep -q h264_nvenc  && _vcodec='h264_nvenc'
 
 # Care must be taken if this is enabled.  This forces the Input stream to be handled
-# by a specific hardware decoder.  If the input stream codec is not a supported by the
-# hardware decoder then ffmpeg may fault out or corrupt the input stream.  YMMV.
+# by the specific hardware decoder.  If the input stream codec is not a supported by the
+# hardware decoder then ffmpeg may, ignore it, fault out or corrupt the input stream.  YMMV.
+
 #ffmpeg -hwaccels 2> /dev/null | grep -q cuvid && _hwaccel1='-hwaccel'
-#if [ $_hwaccel1 != '' ] ; then _hwaccel2='cuvid' ; fi
+#if [ $_hwaccel1 != '' ] ; then _hwaccel2='nvdec' ; fi
 
 for opt in "$@"
 do
