@@ -44,7 +44,8 @@ ffmpeg -codecs 2>&1 | grep -q h264_nvenc  && _vcodec='h264_nvenc'
 # Care must be taken if this is enabled.  This forces the Input stream to be handled
 # by a specific hardware encoder.  If the input stream is not a supported codec then
 # ffmpeg may fault out or corrupt the input stream.  YMMV.
-#ffmpeg -hwaccels 2>&1 | grep -q cuvid && ( _hwaccel1='-hwaccel' ;  _hwaccel2='cuvid' )
+#ffmpeg -hwaccels 2>&1 | grep -q cuvid && _hwaccel1='-hwaccel'
+#(($_hwaccel1)) && _hwaccel2='cuvid'
 
 for opt in "$@"
 do
