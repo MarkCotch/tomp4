@@ -256,6 +256,11 @@ case $opt in
       #if [ $_scale_vid == "BURNIN" ]; then _scale_vid="subtitles=${opt}" ; echo $_scale_vid ; fi
       _scale_vid=$( sed "s/BURNIN/subtitles=${opt}/" <<< $_scale_vid )
 
+      __vID=''
+      __aID=''
+      if [ $_vcodec != 'copy' ] ; then __vID="${_vcodec}" ; fi
+      if [ $_acodec != 'copy' ] ; then __aID="${_acodec}" ; fi
+
       if [ $_title1 ] ; then
 
        /usr/bin/time nice -n 15 ffmpeg $_hwaccel1 $_hwaccel2  -i "$opt" \
@@ -264,7 +269,7 @@ case $opt in
         $_sub1 $_sub2 $_sub3 $_sub4 \
         -map 0:a:${_astream} -acodec $_acodec $_af1 $_af2 -metadata:s:a:1 language=eng \
         -movflags faststart \
-        -metadata comment="tomp4_${_version}" \
+        -metadata comment="tomp4_${_version}::${__vID}::${__aID}" \
         "$_title1" "$_title2" \
         $_dest_dir/$(sed 's/\....$/\.mp4/' <<< "$opt")
        exit
@@ -278,7 +283,7 @@ case $opt in
         -map 0:a:${_astream} -acodec $_acodec $_af1 $_af2 -metadata:s:a:1 language=eng \
         -movflags faststart \
         -metadata title="$(sed -r 's/\....$// ; s/_/ /g ; s/ S[0-9]{1,2}E[0-9]{1,2}/&:/' <<< $opt)" \
-        -metadata comment="tomp4_${_version}" \
+        -metadata comment="tomp4_${_version}::${__vID}::${__aID}" \
         $_dest_dir/$(sed 's/\....$/\.mp4/' <<< "$opt")
 
       fi
