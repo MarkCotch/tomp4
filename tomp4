@@ -13,6 +13,7 @@
 #
 
 _version='0.3.0'
+_name='tomp4'
 _dest_dir="$HOME/mp4"
 _vcodec="h264"
 _acodec="aac"
@@ -65,7 +66,7 @@ case $opt in
   echo '  -vol=# Set Audio Volume level.  Default=3'
   echo '  -ss=# Select alternate Subtitle Stream'
   echo '  -d=/path/to/destination/folder  Destination directory (Default: $HOME/mp4)'
-  echo '  -264  Force H.264 (libx264) software encoding.'
+  echo '  -264 | -soft | -soft264  Force H.264 (libx264) software encoding.'
   echo '  -vpreset= ultrafast,superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo'
   echo '            default=medium'
   echo '  -stripmeta   Strip metadata from stream. Default is to passthrough metadata.'
@@ -78,9 +79,17 @@ case $opt in
   echo '  -640 | -800 | -1280 | -1920 Force destination file to 640, 800, 1280 or 1920 columns.'
   echo '   Scale columns/row to match aspect ratio'
   echo '             (Default: keep original size)'
+  echo
+  echo '  -debug | --debug  Show ffmpeg command line to run '
+  echo
   echo 'tomp4 is used to automate/batch the transcoding of videos to a'
   echo 'Chromecast compatable Video Format.'
   echo
+  ;;
+
+# Set DEBUG
+  -debug|--debug)
+  _DEBUG='echo'
   ;;
 
 # Copy original Video codec data into new file unchanged.
@@ -103,13 +112,13 @@ case $opt in
 
 # Set Volume level.  Default: 3
 # Note Volume scale is logrythmic
- -vol=*)
+ -vol=*|--vol=*)
   _af1='-af'
   _af2="volume=${opt#*=}"
  ;;
 
 # This forces H.264 software codec (libx264).
-  -264)
+  -264|-soft|--soft|-soft264|--soft264)
   _vcodec="libx264"
   ;;
 
@@ -258,32 +267,32 @@ case $opt in
 
       __vID=''
       __aID=''
-      if [ $_vcodec != 'copy' ] ; then __vID="::${_vcodec}" ; fi
-      if [ $_acodec != 'copy' ] ; then __aID="::${_acodec}" ; fi
+      if [ $_vcodec != 'copy' ] ; then __vID=":${_vcodec}" ; fi
+      if [ $_acodec != 'copy' ] ; then __aID=":${_acodec}" ; fi
 
       if [ $_title1 ] ; then
 
-       /usr/bin/time nice -n 15 ffmpeg $_hwaccel1 $_hwaccel2  -i "$opt" \
+       $_DEBUG /usr/bin/time nice -n 15 ffmpeg $_hwaccel1 $_hwaccel2  -i "$opt" \
         -strict -2 $_meta1 $_meta2 \
         -map 0:v:${_vstream} $_vf $_scale_vid -vcodec $_vcodec \
         $_sub1 $_sub2 $_sub3 $_sub4 \
         -map 0:a:${_astream} -acodec $_acodec $_af1 $_af2 -metadata:s:a:1 language=eng \
         -movflags faststart \
-        -metadata comment="tomp4_${_version}${__vID}${__aID}" \
+        -metadata comment="${_name}-${_version}${__vID}${__aID}" \
         "$_title1" "$_title2" \
         $_dest_dir/$(sed 's/\....$/\.mp4/' <<< "$opt")
        exit
 
       else
 
-       /usr/bin/time nice -n 15 ffmpeg $_hwaccel1 $_hwaccel2 -i "$opt" \
+       $_DEBUG /usr/bin/time nice -n 15 ffmpeg $_hwaccel1 $_hwaccel2 -i "$opt" \
         -strict -2 $_meta1 $_meta2 \
         -map 0:v:${_vstream} $_vf $_scale_vid -preset $_vpreset -vcodec $_vcodec \
         $_sub1 $_sub2 $_sub3 $_sub4 \
         -map 0:a:${_astream} -acodec $_acodec $_af1 $_af2 -metadata:s:a:1 language=eng \
         -movflags faststart \
         -metadata title="$(sed -r 's/\....$// ; s/_/ /g ; s/ S[0-9]{1,2}E[0-9]{1,2}/&:/' <<< $opt)" \
-        -metadata comment="tomp4_${_version}${__vID}${__aID}" \
+        -metadata comment="${_name}-${_version}${__vID}${__aID}" \
         $_dest_dir/$(sed 's/\....$/\.mp4/' <<< "$opt")
 
       fi
