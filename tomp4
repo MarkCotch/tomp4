@@ -74,6 +74,7 @@ case $opt in
   echo '  -burn|burnin Burnin subtitles from first subtitle stream (text subtitles)'
   echo '  -subfile=/path/to/subtile/text/file Burnin subtitles from external text file'
   echo '  -title="<Title>" Force Title metadata (Note: only encodes first file, rest are ignored)'
+  echo '  -fr=<rate>|-framerate=<rate> Encode framerate at <rate>'
   echo
   echo '  -480 | -576 | -720 | -1080 Force destination file to 480, 576, 720 or 1080 lines.'
   echo '  -640 | -800 | -1280 | -1920 Force destination file to 640, 800, 1280 or 1920 columns.'
@@ -148,6 +149,13 @@ case $opt in
   _level=1
   _ss=0
   _stopTime=''
+ ;;
+
+# Set new framerate
+ -fr=*|-framerate=*)
+  _vf='-vf'
+  test -z $_scale_vid || _scale_vid="${_scale_vid},"
+  _scale_vid="${_scale_vid}fps=fps=${opt#*=}"
  ;;
 
 # Burnin subtitles from first subtitle (text subtitle) stream
