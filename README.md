@@ -17,4 +17,4 @@ https://developer.nvidia.com/ffmpeg
 It is possible to convert this script to use avconv (found on the RaspPi) and 
 the use of an alternate encoder (e.g. H/W H.264 encoder chip).  I did this 
 testing with a RaspPi.  I found the arrangement to be a bit erratic but it 
-worked (most of the time).  If you want more information of this let me know.
+worked (most of the time).  If you want more information on this let me know.
