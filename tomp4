@@ -233,7 +233,7 @@ case $opt in
   -resize=*)
   _resize=$( echo "${opt#*=}" | tr 'x' ':' )
   _vf='vf'
-  test -z $_scale_vid || _scale_vid="${_scale_vid},
+  test -z $_scale_vid || _scale_vid="${_scale_vid},"
   scale_vid="${_scale_vid}scale=${_resize}:force_original_aspect_ratio=decrease,pad=${_resize}:(ow-iw)/2:(oh-ih)/2,setsar=1"
 
 
