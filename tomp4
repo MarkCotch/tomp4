@@ -80,6 +80,8 @@ case $opt in
   echo '  -640 | -800 | -1280 | -1920 Force destination file to 640, 800, 1280 or 1920 columns.'
   echo '   Scale columns/row to match aspect ratio'
   echo '             (Default: keep original size)'
+  echo '  -resize=<width>:<height>  Force destination to specific size (Add black bars as necessary) '
+  echo '     Note <width>x<height> also works.
   echo
   echo '  -debug | --debug  Show ffmpeg command line to run '
   echo
@@ -222,11 +224,18 @@ case $opt in
   ;;
 
 #
-  -600)
+  -640)
   _vf='-vf'
   test -z $_scale_vid || _scale_vid="${_scale_vid},"
-  _scale_vid="${_scale_vid}scale=600:-2"
+  _scale_vid="${_scale_vid}scale=640:-2"
   ;;
+  
+  -resize=*)
+  _resize=$( echo "${opt#*=}" | tr 'x' ':' )
+  _vf='vf'
+  test -z $_scale_vid || _scale_vid="${_scale_vid},
+  scale_vid="${_scale_vid}scale=${_resize}:force_original_aspect_ratio=decrease,pad=${_resize}:(ow-iw)/2:(oh-ih)/2,setsar=1"
+
 
   -800)
   _vf='-vf'
