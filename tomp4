@@ -81,7 +81,7 @@ case $opt in
   echo '   Scale columns/row to match aspect ratio'
   echo '             (Default: keep original size)'
   echo '  -resize=<width>:<height>  Force destination to specific size (Add black bars as necessary) '
-  echo '     Note <width>x<height> also works.
+  echo '     Note <width>x<height> also works.'
   echo
   echo '  -debug | --debug  Show ffmpeg command line to run '
   echo
