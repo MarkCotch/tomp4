@@ -12,7 +12,7 @@
 # with Chromecast.  By default we encode with higher audio line levels.
 #
 
-_version='0.3.0'
+_version='0.3.1'
 _name='tomp4'
 _dest_dir="$HOME/mp4"
 _vcodec="h264"
@@ -70,7 +70,7 @@ case $opt in
   echo '  -vpreset= ultrafast,superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo'
   echo '            default=medium'
   echo '  -stripmeta   Strip metadata from stream. Default is to passthrough metadata.'
-  echo '  -sub  Include first Sub-Title Stream (graphical subtitles)'
+  echo '  -sub | -subtitle | -cs  Include first Sub-Title Stream (graphical subtitles)'
   echo '  -burn|burnin Burnin subtitles from first subtitle stream (text subtitles)'
   echo '  -subfile=/path/to/subtile/text/file Burnin subtitles from external text file'
   echo '  -title="<Title>" Force Title metadata (Note: only encodes first file, rest are ignored)'
@@ -137,14 +137,14 @@ case $opt in
  ;;
 
 # Include the first Sub-Title stream.  By default all additional streams are stripped
-# -sub|-subtitle)
-# _sub1='-map'
-# _sub2="0:s:0"
-# _sub3='-scodec'
-# _sub4='mov_text'
+ -sub|-subtitle|-cs)
+  _sub1='-map'
+  _sub2='0:s:0'
+  _sub3='-scodec'
+  _sub4='mov_text'
 # _sub4='dvd_subtitle'
 # _sub4='copy'
-# ;;
+ ;;
 
 # Determine Audio levels
  -level)
