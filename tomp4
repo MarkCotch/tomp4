@@ -1,5 +1,5 @@
 #!/bin/bash
-# tomp4 V0.3.0
+# tomp4 V0.3.2
 # Copyright (c) 2015 Written by Mark Coccimiglio (mark@coccimiglio.net)
 # Free for non-commercial use.  If you are making money on the use of this
 # script then contact me with a reasonable offer for licensing.
@@ -12,7 +12,7 @@
 # with Chromecast.  By default we encode with higher audio line levels.
 #
 
-_version='0.3.1'
+_version='0.3.2'
 _name='tomp4'
 _dest_dir="$HOME/mp4"
 _vcodec="h264"
@@ -139,7 +139,7 @@ case $opt in
 # Include the first Sub-Title stream.  By default all additional streams are stripped
  -sub|-subtitle|-cs)
   _sub1='-map'
-  _sub2='0:s:0'
+  _sub2='0:s:0?'
   _sub3='-scodec'
   _sub4='mov_text'
 # _sub4='dvd_subtitle'
