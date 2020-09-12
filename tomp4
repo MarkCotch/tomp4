@@ -12,7 +12,7 @@
 # with Chromecast.  By default we encode with higher audio line levels.
 #
 
-_version='0.3.2'
+_version='0.3.3'
 _name='tomp4'
 _dest_dir="$HOME/mp4"
 _vcodec="h264"
