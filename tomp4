@@ -17,8 +17,8 @@ _name='tomp4'
 _dest_dir="$HOME/mp4"
 _vcodec="h264"
 _acodec="aac"
-_hwaccel1=''
-_hwaccel2=''
+_hwaccel1='-hwaccel'
+_hwaccel2='auto'
 _af1='-af'
 _af2='volume=3'
 _vstream='0'
