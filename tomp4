@@ -123,6 +123,8 @@ case $opt in
 # This forces H.264 software codec (libx264).
   -264|-soft|--soft|-soft264|--soft264)
   _vcodec="libx264"
+  _hwaccel1=''
+  _hwaccel2=''
   ;;
 
 # Normaly original metadata is preserved.  With this option ALL legacy metadata is stripped.
