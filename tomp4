@@ -19,6 +19,8 @@ _vcodec="h264"
 _acodec="aac"
 _hwaccel1='-hwaccel'
 _hwaccel2='auto'
+_loglevel1=''
+_loglevel2=''
 _af1='-af'
 _af2='volume=3'
 _vstream='0'
@@ -38,6 +40,8 @@ _title2=''
 _burnin1=''
 _burnin2=''
 _level=''
+_pixfmt1=''
+_pixfmt2=''
 
 # If we have an available CUDA hardware encoder we will have a preference for that.
 
@@ -67,6 +71,8 @@ case $opt in
   echo '  -ss=# Select alternate Subtitle Stream'
   echo '  -d=/path/to/destination/folder  Destination directory (Default: $HOME/mp4)'
   echo '  -264 | -soft | -soft264  Force H.264 (libx264) software encoding.'
+  echo '  -pixfmt= Set Pixel Format (See: "ffmpeg -pix_fmts" for more options.'
+  echo '  -loglevel= Set ffmpeg login level (See: "man ffmpeg" for more options.'
   echo '  -vpreset= ultrafast,superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo'
   echo '            default=medium'
   echo '  -stripmeta   Strip metadata from stream. Default is to passthrough metadata.'
@@ -122,9 +128,21 @@ case $opt in
 
 # This forces H.264 software codec (libx264).
   -264|-soft|--soft|-soft264|--soft264)
-  _vcodec="libx264"
-  _hwaccel1=''
-  _hwaccel2=''
+   _vcodec="libx264"
+   _hwaccel1=''
+   _hwaccel2=''
+  ;;
+
+# Set Pixel Format (-pix_fmt)
+  -pixfmt=*|-pix_fmt=*)
+   _pixfmt1='-pix_fmt'
+   _pixfmt2="${opt#*=}"
+  ;;
+
+# Set ffmpeg log level
+  -loglevel=*)
+   _loglevel1='-loglevel'
+   _loglevel2="${opt#*=}"
   ;;
 
 # Normaly original metadata is preserved.  With this option ALL legacy metadata is stripped.
@@ -231,7 +249,7 @@ case $opt in
   test -z $_scale_vid || _scale_vid="${_scale_vid},"
   _scale_vid="${_scale_vid}scale=640:-2"
   ;;
-  
+
   -resize=*)
   _resize=$( echo "${opt#*=}" | tr 'x' ':' )
   _vf='-vf'
@@ -291,9 +309,9 @@ case $opt in
 
       if [ $_title1 ] ; then
 
-       $_DEBUG /usr/bin/time nice -n 15 ffmpeg $_hwaccel1 $_hwaccel2  -i "$opt" \
+       $_DEBUG /usr/bin/time nice -n 15 ffmpeg $_loglevel1 $_loglevel2 $_hwaccel1 $_hwaccel2  -i "$opt" \
         -strict -2 $_meta1 $_meta2 \
-        -map 0:v:${_vstream} $_vf $_scale_vid -vcodec $_vcodec \
+        -map 0:v:${_vstream} $_pixfmt1 $_pixfmt2 $_vf $_scale_vid -vcodec $_vcodec \
         $_sub1 $_sub2 $_sub3 $_sub4 \
         -map 0:a:${_astream} -acodec $_acodec $_af1 $_af2 -metadata:s:a:1 language=eng \
         -movflags faststart \
@@ -304,9 +322,9 @@ case $opt in
 
       else
 
-       $_DEBUG /usr/bin/time nice -n 15 ffmpeg $_hwaccel1 $_hwaccel2 -i "$opt" \
+       $_DEBUG /usr/bin/time nice -n 15 ffmpeg $_loglevel1 $_loglevel2 $_hwaccel1 $_hwaccel2 -i "$opt" \
         -strict -2 $_meta1 $_meta2 \
-        -map 0:v:${_vstream} $_vf $_scale_vid -preset $_vpreset -vcodec $_vcodec \
+        -map 0:v:${_vstream} $_pixfmt1 $_pixfmt2 $_vf $_scale_vid -preset $_vpreset -vcodec $_vcodec \
         $_sub1 $_sub2 $_sub3 $_sub4 \
         -map 0:a:${_astream} -acodec $_acodec $_af1 $_af2 -metadata:s:a:1 language=eng \
         -movflags faststart \
