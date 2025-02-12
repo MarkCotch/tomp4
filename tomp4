@@ -1,5 +1,5 @@
 #!/bin/bash
-# tomp4 V0.3.2
+# tomp4 V0.3.4
 # Copyright (c) 2015 Written by Mark Coccimiglio (mark@coccimiglio.net)
 # Free for non-commercial use.  If you are making money on the use of this
 # script then contact me with a reasonable offer for licensing.
@@ -12,7 +12,7 @@
 # with Chromecast.  By default we encode with higher audio line levels.
 #
 
-_version='0.3.3'
+_version='0.3.4'
 _name='tomp4'
 _dest_dir="$HOME/mp4"
 _vcodec="h264"
@@ -43,15 +43,18 @@ _level=''
 _pixfmt1=''
 _pixfmt2=''
 
+_ENCODERBIN='ffmpeg'
+_ENCODERVER=$(${_ENCODERBIN} -version 2>&1 | head -1 | awk '{ print $3 }')
+
 # If we have an available CUDA hardware encoder we will have a preference for that.
 
-ffmpeg -codecs 2> /dev/null | grep -q h264_nvenc  && _vcodec='h264_nvenc'
+${_ENCODERBIN} -codecs 2> /dev/null | grep -q h264_nvenc  && _vcodec='h264_nvenc'
 
 # Care must be taken if this is enabled.  This forces the Input stream to be handled
 # by a specific hardware decoder.  If the input stream codec is not a supported by the
 # hardware decoder then ffmpeg may, ignore it, fault out or corrupt the input stream.  YMMV.
 
-#ffmpeg -hwaccels 2> /dev/null | grep -q cuvid && _hwaccel1='-hwaccel'
+#${_ENCODERBIN} -hwaccels 2> /dev/null | grep -q cuvid && _hwaccel1='-hwaccel'
 #if [ $_hwaccel1 != '' ] ; then _hwaccel2='nvdec' ; fi
 
 for opt in "$@"
@@ -293,10 +296,10 @@ case $opt in
   if [ $_level ]
    then
      echo "Processing Audio Levels for $opt"
-     ffmpeg -ss $_ss -i $opt -af "volumedetect" -f null /dev/null 2>&1 | egrep 'n_samples|mean_volume|max_volume' | cut -d' ' -f4-
+      ${_ENCODERBIN}-ss $_ss -i $opt -af "volumedetect" -f null /dev/null 2>&1 | egrep 'n_samples|mean_volume|max_volume' | cut -d' ' -f4-
    else
       if [ ! -d "$_dest_dir" ] ;then mkdir "$_dest_dir" ;fi
-    #  echo time nice -n 15 ffmpeg -i "$opt" -strict -2 $_meta1 $_meta2 -map 0:v:0 $_vf $_scale_vid -vcodec $_vcodec -map 0:a:0 -acodec $_acodec $_af1 $_af2 \
+    #  echo time -p nice -n 15  ${_ENCODERBIN}-i "$opt" -strict -2 $_meta1 $_meta2 -map 0:v:0 $_vf $_scale_vid -vcodec $_vcodec -map 0:a:0 -acodec $_acodec $_af1 $_af2 \
     #   -movflags faststart "$_title1" "$_title2" $_dest_dir/$(sed 's/\....$/\.mp4/' <<< "$opt")
 
       #if [ $_scale_vid == "BURNIN" ]; then _scale_vid="subtitles=${opt}" ; echo $_scale_vid ; fi
@@ -309,27 +312,27 @@ case $opt in
 
       if [ $_title1 ] ; then
 
-       $_DEBUG /usr/bin/time nice -n 15 ffmpeg $_loglevel1 $_loglevel2 $_hwaccel1 $_hwaccel2  -i "$opt" \
+       $_DEBUG /usr/bin/time -p nice -n 15 ${_ENCODERBIN} $_loglevel1 $_loglevel2 $_hwaccel1 $_hwaccel2  -i "$opt" \
         -strict -2 $_meta1 $_meta2 \
         -map 0:v:${_vstream} $_pixfmt1 $_pixfmt2 $_vf $_scale_vid -vcodec $_vcodec \
         $_sub1 $_sub2 $_sub3 $_sub4 \
         -map 0:a:${_astream} -acodec $_acodec $_af1 $_af2 -metadata:s:a:1 language=eng \
         -movflags faststart \
-        -metadata comment="${_name}-${_version}${__vID}${__aID}" \
+        -metadata comment="${_name}-${_version}:${_ENCODERBIN}-${_ENCODERVER}${__vID}${__aID}" \
         "$_title1" "$_title2" \
         $_dest_dir/$(sed 's/\....$/\.mp4/' <<< "$opt")
        exit
 
       else
 
-       $_DEBUG /usr/bin/time nice -n 15 ffmpeg $_loglevel1 $_loglevel2 $_hwaccel1 $_hwaccel2 -i "$opt" \
+       $_DEBUG /usr/bin/time -p nice -n 15 ${_ENCODERBIN} $_loglevel1 $_loglevel2 $_hwaccel1 $_hwaccel2 -i "$opt" \
         -strict -2 $_meta1 $_meta2 \
         -map 0:v:${_vstream} $_pixfmt1 $_pixfmt2 $_vf $_scale_vid -preset $_vpreset -vcodec $_vcodec \
         $_sub1 $_sub2 $_sub3 $_sub4 \
         -map 0:a:${_astream} -acodec $_acodec $_af1 $_af2 -metadata:s:a:1 language=eng \
         -movflags faststart \
         -metadata title="$(sed -r 's/\....$// ; s/_/ /g ; s/ S[0-9]{1,2}E[0-9]{1,2}/&:/' <<< $opt)" \
-        -metadata comment="${_name}-${_version}${__vID}${__aID}" \
+        -metadata comment="${_name}-${_version}:${_ENCODERBIN}-${_ENCODERVER}${__vID}${__aID}" \
         $_dest_dir/$(sed 's/\....$/\.mp4/' <<< "$opt")
 
       fi
