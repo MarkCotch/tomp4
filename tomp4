@@ -1,5 +1,5 @@
 #!/bin/bash
-# tomp4 V0.3.5
+# tomp4 V0.3.6
 # Copyright (c) 2015 Written by Mark Coccimiglio (mark@coccimiglio.net)
 # Free for non-commercial use.  If you are making money on the use of this
 # script then contact me with a reasonable offer for licensing.
@@ -12,7 +12,7 @@
 # with Chromecast.  By default we encode with higher audio line levels.
 #
 
-_version='0.3.5'
+_version='0.3.6'
 _name='tomp4'
 _dest_dir="$HOME/mp4"
 _vcodec="h264"
@@ -296,7 +296,9 @@ case $opt in
   if [ $_level ]
    then
      echo "Processing Audio Levels for $opt"
-      ${_ENCODERBIN} -ss $_ss -i $opt -af "volumedetect" -f null /dev/null 2>&1 | egrep 'n_samples|mean_volume|max_volume' | cut -d' ' -f4-
+     # when normalizing volume raise by MaxVolume. This will give you the most volume increase without "clipping" the loud instances.
+     i#/usr/bin/time -p nice -n 15 ${_ENCODERBIN} -ss $_ss -i $opt -af "volumedetect" -f null /dev/null 2>&1 | egrep 'n_samples|mean_volume|max_volume' | cut -d' ' -f4-
+     /usr/bin/time -p nice -n 15 ${_ENCODERBIN} -i $opt -af "volumedetect" -f null /dev/null 2>&1 | egrep 'n_samples|mean_volume|max_volume' | cut -d' ' -f4-
    else
       if [ ! -d "$_dest_dir" ] ;then mkdir "$_dest_dir" ;fi
     #  echo time -p nice -n 15  ${_ENCODERBIN}-i "$opt" -strict -2 $_meta1 $_meta2 -map 0:v:0 $_vf $_scale_vid -vcodec $_vcodec -map 0:a:0 -acodec $_acodec $_af1 $_af2 \
