@@ -1,5 +1,5 @@
 #!/bin/bash
-# tomp4 V0.3.7
+# tomp4 V0.4.0
 # Copyright (c) 2015 Written by Mark Coccimiglio (mark@coccimiglio.net)
 # Free for non-commercial use.  If you are making money on the use of this
 # script then contact me with a reasonable offer for licensing.
@@ -12,7 +12,7 @@
 # with Chromecast.  By default we encode with higher audio line levels.
 #
 
-_version='0.3.7'
+_version='0.4.0'
 _name='tomp4'
 _dest_dir="$HOME/mp4"
 _vcodec="h264"
@@ -31,6 +31,7 @@ _scale_vid=""
 _vpreset="medium"
 _meta1=''
 _meta2=''
+_normalize=''
 _sub1=''
 _sub2=''
 _sub3=''
@@ -66,27 +67,28 @@ case $opt in
   echo 'Usage: tomp4 [-c] [-d=/path/to/folder] [-264] [-480|-576|-720|-1080] sourcefile1.ext sourcefile2.ext ...'
   echo '  -cv  Do not Transcode Video.  Copy Video Codec from Source.'
   echo '  -ca  Do not Transcode Audio.  Copy Audio Codec from Source.'
-  echo '  -av=# Select alternate Video Stream'
-  echo '  -as=# Select alternate Audio Stream'
-  echo '        options -ss requires placment BEFORE -sub'
-  echo '  -level Process Audio volume levels for file(s) ... '
-  echo '  -vol=# Set Audio Volume level.  Default=3'
-  echo '  -ss=# Select alternate Subtitle Stream'
+  echo '  -av=#  Select alternate Video Stream'
+  echo '  -as=#  Select alternate Audio Stream'
+  echo '         options -ss requires placment BEFORE -sub'
+  echo '  -level  Process Audio volume levels for file(s) ... '
+  echo '  -vol=#  Set Audio Volume level.  Default=3'
+  echo '  -normalize | -norm | -morn  Normalize max_volume to ~0dB (Not fully implemented yet.)'
+  echo '  -ss=#  Select alternate Subtitle Stream'
   echo '  -d=/path/to/destination/folder  Destination directory (Default: $HOME/mp4)'
   echo '  -264 | -soft | -soft264  Force H.264 (libx264) software encoding.'
-  echo '  -pixfmt= Set Pixel Format (See: "ffmpeg -pix_fmts" for more options.'
-  echo '  -loglevel= Set ffmpeg login level (See: "man ffmpeg" for more options.'
-  echo '  -vpreset= ultrafast,superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo'
-  echo '            default=medium'
-  echo '  -stripmeta   Strip metadata from stream. Default is to passthrough metadata.'
+  echo '  -pixfmt=  Set Pixel Format (See: "ffmpeg -pix_fmts" for more options.'
+  echo '  -loglevel=  Set ffmpeg login level (See: "man ffmpeg" for more options.'
+  echo '  -vpreset=  ultrafast,superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo'
+  echo '             default=medium'
+  echo '  -stripmeta  Strip metadata from stream. Default is to passthrough metadata.'
   echo '  -sub | -subtitle | -cs  Include first Sub-Title Stream (graphical subtitles)'
   echo '  -burn|burnin Burnin subtitles from first subtitle stream (text subtitles)'
   echo '  -subfile=/path/to/subtile/text/file Burnin subtitles from external text file'
-  echo '  -title="<Title>" Force Title metadata (Note: only encodes first file, rest are ignored)'
-  echo '  -fr=<rate>|-framerate=<rate> Encode framerate at <rate>'
+  echo '  -title="<Title>"  Force Title metadata (Note: only encodes first file, rest are ignored)'
+  echo '  -fr=<rate>|-framerate=<rate>  Encode framerate at <rate>'
   echo
-  echo '  -480 | -576 | -720 | -1080 Force destination file to 480, 576, 720 or 1080 lines.'
-  echo '  -640 | -800 | -1280 | -1920 Force destination file to 640, 800, 1280 or 1920 columns.'
+  echo '  -480 | -576 | -720 | -1080   Force destination file to 480, 576, 720 or 1080 lines.'
+  echo '  -640 | -800 | -1280 | -1920  Force destination file to 640, 800, 1280 or 1920 columns.'
   echo '   Scale columns/row to match aspect ratio'
   echo '             (Default: keep original size)'
   echo '  -resize=<width>:<height>  Force destination to specific size (Add black bars as necessary) '
@@ -127,6 +129,11 @@ case $opt in
  -vol=*|--vol=*)
   _af1='-af'
   _af2="volume=${opt#*=}"
+ ;;
+
+# Normalize 'max_volume" level to ~0dB
+ -normalize|-norm|-morn)
+  -normalize=1
  ;;
 
 # This forces H.264 software codec (libx264).
@@ -311,6 +318,14 @@ case $opt in
       __aID=''
       if [ $_vcodec != 'copy' ] ; then __vID=":${_vcodec}" ; fi
       if [ $_acodec != 'copy' ] ; then __aID=":${_acodec}" ; fi
+
+      if [ $_normalize -eq 1  ]
+       then
+        echo "_normalize ${_normalize} Placeholder. Not Implemented at this time."
+        #1. First we extract the max_volume from file.
+        #2. If max_volume > 0 then enable volume filter to ABS(max_volume)
+        #   set $_af1 and _af2 accordingly.
+      fi
 
       if [ $_title1 ] ; then
 
