@@ -1,5 +1,5 @@
 #!/bin/bash
-# tomp4 V0.4.0
+# tomp4 V0.4.2
 # Copyright (c) 2015 Written by Mark Coccimiglio (mark@coccimiglio.net)
 # Free for non-commercial use.  If you are making money on the use of this
 # script then contact me with a reasonable offer for licensing.
@@ -12,7 +12,7 @@
 # with Chromecast.  By default we encode with higher audio line levels.
 #
 
-_version='0.4.0'
+_version='0.4.2'
 _name='tomp4'
 _dest_dir="$HOME/mp4"
 _vcodec="h264"
@@ -58,6 +58,14 @@ ${_ENCODERBIN} -codecs 2> /dev/null | grep -q h264_nvenc  && _vcodec='h264_nvenc
 #${_ENCODERBIN} -hwaccels 2> /dev/null | grep -q cuvid && _hwaccel1='-hwaccel'
 #if [ $_hwaccel1 != '' ] ; then _hwaccel2='nvdec' ; fi
 
+#function get_mean_volume () {
+#  echo "$( ${_ENCODERBIN} -i $1 -map 0:a -af "volumedetect" -f null /dev/null 2>&1 | egrep 'mean_volume' | cut -d' ' -f5 | sed 's/-//' )" ;
+#};
+
+function get_max_volume  () {
+  echo "$( ${_ENCODERBIN} -i $1 -map 0:a -af "volumedetect" -f null /dev/null 2>&1 | egrep 'max_volume'  | cut -d' ' -f5 | sed 's/-//' )" ;
+};
+
 for opt in "$@"
 do
 
@@ -72,7 +80,7 @@ case $opt in
   echo '         options -ss requires placment BEFORE -sub'
   echo '  -level  Process Audio volume levels for file(s) ... '
   echo '  -vol=#  Set Audio Volume level.  Default=3'
-  echo '  -normalize | -norm | -morn  Normalize max_volume to ~0dB (Not fully implemented yet.)'
+  echo '  -normalize | -norm | -morn  Normalize max_volume to ~0dB '
   echo '  -ss=#  Select alternate Subtitle Stream'
   echo '  -d=/path/to/destination/folder  Destination directory (Default: $HOME/mp4)'
   echo '  -264 | -soft | -soft264  Force H.264 (libx264) software encoding.'
@@ -133,7 +141,7 @@ case $opt in
 
 # Normalize 'max_volume" level to ~0dB
  -normalize|-norm|-morn)
-  -normalize=1
+  _normalize=1
  ;;
 
 # This forces H.264 software codec (libx264).
@@ -321,7 +329,12 @@ case $opt in
 
       if [ $_normalize -eq 1  ]
        then
-        echo "_normalize ${_normalize} Placeholder. Not Implemented at this time."
+        #echo "_normalize ${_normalize} Placeholder. Not Implemented at this time."
+        #echo "get_max_volume $opt: $( get_max_volume $opt )"
+        _af1='-af'
+        _af2="volume=$( get_max_volume $opt )dB"
+        #echo _af1=${_af1}
+        #echo _af2=${_af2}
         #1. First we extract the max_volume from file.
         #2. If max_volume > 0 then enable volume filter to ABS(max_volume)
         #   set $_af1 and _af2 accordingly.
