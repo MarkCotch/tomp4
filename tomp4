@@ -1,5 +1,5 @@
 #!/bin/bash
-# tomp4 V0.4.3
+# tomp4 V0.4.4
 # Copyright (c) 2015 Written by Mark Coccimiglio (mark@coccimiglio.net)
 # Free for non-commercial use.  If you are making money on the use of this
 # script then contact me with a reasonable offer for licensing.
@@ -12,7 +12,7 @@
 # with Chromecast.  By default we encode with higher audio line levels.
 #
 
-_version='0.4.3'
+_version='0.4.4'
 _name='tomp4'
 _dest_dir="$HOME/mp4"
 _vcodec="h264"
@@ -77,17 +77,24 @@ case $opt in
   echo '  -ca  Do not Transcode Audio.  Copy Audio Codec from Source.'
   echo '  -av=#  Select alternate Video Stream'
   echo '  -as=#  Select alternate Audio Stream'
-  echo '         options -ss requires placment BEFORE -sub'
-  echo '  -level  Process Audio volume levels for file(s) ... '
+  echo '  -level  Discover Audio volume levels for file(s) ... '
+  echo '          No processing of files occurs.'
   echo '  -vol=#  Set Audio Volume level.  Default=3'
   echo '  -normalize | -norm | -morn  Normalize max_volume to ~0dB '
+  echo '     The setting -vol and -normalize are mutually exclusive. '
   echo '  -ss=#  Select alternate Subtitle Stream'
+  echo '         options -ss requires placment BEFORE -sub'
   echo '  -d=/path/to/destination/folder  Destination directory (Default: $HOME/mp4)'
   echo '  -264 | -soft | -soft264  Force H.264 (libx264) software encoding.'
   echo '  -pixfmt=  Set Pixel Format (See: "ffmpeg -pix_fmts" for more options.'
   echo '  -loglevel=  Set ffmpeg login level (See: "man ffmpeg" for more options.'
-  echo '  -vpreset=  ultrafast,superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo'
-  echo '             default=medium'
+  echo '  -vpreset= '
+  echo '     libx264: ultrafast,superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo'
+  echo '              default=medium'
+  echo '              For more Information see: https://trac.ffmpeg.org/wiki/Encode/H.264'
+  echo '       nvenc: slow, medium, fast, hp, hq, bd, ll, llhq, llhp, lossless, losslesshp'
+  echo '              default=medium'
+  echo '              For more information run: ffmpeg -hide_banner -h encoder=h264_nvenc '
   echo '  -stripmeta  Strip metadata from stream. Default is to passthrough metadata.'
   echo '  -sub | -subtitle | -cs  Include first Sub-Title Stream (graphical subtitles)'
   echo '  -burn|burnin Burnin subtitles from first subtitle stream (text subtitles)'
