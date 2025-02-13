@@ -1,5 +1,5 @@
 #!/bin/bash
-# tomp4 V0.4.2
+# tomp4 V0.4.3
 # Copyright (c) 2015 Written by Mark Coccimiglio (mark@coccimiglio.net)
 # Free for non-commercial use.  If you are making money on the use of this
 # script then contact me with a reasonable offer for licensing.
@@ -12,7 +12,7 @@
 # with Chromecast.  By default we encode with higher audio line levels.
 #
 
-_version='0.4.2'
+_version='0.4.3'
 _name='tomp4'
 _dest_dir="$HOME/mp4"
 _vcodec="h264"
@@ -313,7 +313,7 @@ case $opt in
      echo "Processing Audio Levels for $opt"
      # when normalizing volume raise by MaxVolume. This will give you the most volume increase without "clipping" the loud instances.
      #/usr/bin/time -p nice -n 15 ${_ENCODERBIN} -ss $_ss -i $opt -af "volumedetect" -f null /dev/null 2>&1 | egrep 'n_samples|mean_volume|max_volume' | cut -d' ' -f4-
-     time -p nice -n 15 ${_ENCODERBIN} -i $opt -map 0:a -af "volumedetect" -f null /dev/null 2>&1 | egrep 'n_samples|mean_volume|max_volume' | cut -d' ' -f4-
+     nice -n 15 ${_ENCODERBIN} -i $opt -map 0:a -af "volumedetect" -f null /dev/null 2>&1 | egrep 'n_samples|mean_volume|max_volume' | cut -d' ' -f4-
    else
       if [ ! -d "$_dest_dir" ] ;then mkdir "$_dest_dir" ;fi
     #  echo time -p nice -n 15  ${_ENCODERBIN}-i "$opt" -strict -2 $_meta1 $_meta2 -map 0:v:0 $_vf $_scale_vid -vcodec $_vcodec -map 0:a:0 -acodec $_acodec $_af1 $_af2 \
@@ -329,15 +329,13 @@ case $opt in
 
       if [ $_normalize -eq 1  ]
        then
-        #echo "_normalize ${_normalize} Placeholder. Not Implemented at this time."
-        #echo "get_max_volume $opt: $( get_max_volume $opt )"
+        echo "Normalize max_volume - Reading line levels for: ${opt}"
+        _ll=$( get_max_volume $opt )
+        echo "max_volume at: -${_ll}db"
         _af1='-af'
-        _af2="volume=$( get_max_volume $opt )dB"
-        #echo _af1=${_af1}
-        #echo _af2=${_af2}
-        #1. First we extract the max_volume from file.
-        #2. If max_volume > 0 then enable volume filter to ABS(max_volume)
-        #   set $_af1 and _af2 accordingly.
+        _af2="volume=${_ll}dB"
+        test "${_DEBUG}" != '' && echo "DEBUG: _af1=${_af1}"
+        test "${_DEBUG}" != '' && echo "DEBUG: _af2=${_af2}"
       fi
 
       if [ $_title1 ] ; then
@@ -367,6 +365,7 @@ case $opt in
 
       fi
     fi
+    echo
   ;;
 
 esac
