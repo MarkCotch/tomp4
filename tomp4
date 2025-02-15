@@ -1,5 +1,5 @@
 #!/bin/bash
-# tomp4 V0.4.4
+# tomp4 V0.5.0
 # Copyright (c) 2015 Written by Mark Coccimiglio (mark@coccimiglio.net)
 # Free for non-commercial use.  If you are making money on the use of this
 # script then contact me with a reasonable offer for licensing.
@@ -15,6 +15,7 @@
 _version='0.4.4'
 _name='tomp4'
 _dest_dir="$HOME/mp4"
+_ext='mp4'
 _vcodec="h264"
 _acodec="aac"
 _hwaccel1='-hwaccel'
@@ -32,10 +33,10 @@ _vpreset="medium"
 _meta1=''
 _meta2=''
 _normalize=''
-_sub1=''
-_sub2=''
-_sub3=''
-_sub4=''
+_sub1='-map'
+_sub2='0:s:0?'
+_sub3='-scodec'
+_sub4='mov_text'
 _title1=''
 _title2=''
 _burnin1=''
@@ -73,8 +74,13 @@ case $opt in
   -h)
   echo "tomp4 Version: $_version Copyright (c) 2017 by Mark Coccimiglio"
   echo 'Usage: tomp4 [-c] [-d=/path/to/folder] [-264] [-480|-576|-720|-1080] sourcefile1.ext sourcefile2.ext ...'
+  echo '  -ext=  Set destination file extension. Default "ext"'
   echo '  -cv  Do not Transcode Video.  Copy Video Codec from Source.'
   echo '  -ca  Do not Transcode Audio.  Copy Audio Codec from Source.'
+  echo '  -vcodec= Explicately set Video Codec.'
+  echo "     [ libx264 | libx265 | h264_nvenc | webp | etc. ]  For mor information run:  ${_ENCODERBIN} -codecs"
+  echo '  -acodec= Explicately set Audio Codec'
+  echo "     [ ac3 | aac | flac | opus | mp2 | speex | etc. ]  For mor information run:  ${_ENCODERBIN} -codecs"
   echo '  -av=#  Select alternate Video Stream'
   echo '  -as=#  Select alternate Audio Stream'
   echo '  -level  Discover Audio volume levels for file(s) ... '
@@ -96,7 +102,8 @@ case $opt in
   echo '              default=medium'
   echo '              For more information run: ffmpeg -hide_banner -h encoder=h264_nvenc '
   echo '  -stripmeta  Strip metadata from stream. Default is to passthrough metadata.'
-  echo '  -sub | -subtitle | -cs  Include first Sub-Title Stream (graphical subtitles)'
+  echo '  -cs | -sub | -subtitle  Copy Subtitle from source'
+  echo '  -is | -ignoresub  Ignore (strip) subtitles.'
   echo '  -burn|burnin Burnin subtitles from first subtitle stream (text subtitles)'
   echo '  -subfile=/path/to/subtile/text/file Burnin subtitles from external text file'
   echo '  -title="<Title>"  Force Title metadata (Note: only encodes first file, rest are ignored)'
@@ -137,6 +144,22 @@ case $opt in
   _acodec="copy"
   _af1=''
   _af2=''
+  ;;
+
+# Explicately set Audio Codec.
+  -acodec=*)
+   _acodec="${opt#*=}"
+  ;;
+
+# Explicately set Video Codec.
+  -vcodec=*)
+   _vcodec="${opt#*=}"
+  ;;
+
+# Set destination file extension
+# Default: mp4
+  -ext=*|--ext=*)
+   _ext="${opt#*=}"
   ;;
 
 # Set Volume level.  Default: 3
@@ -184,12 +207,21 @@ case $opt in
 # Include the first Sub-Title stream.  By default all additional streams are stripped
  -sub|-subtitle|-cs)
   _sub1='-map'
-  _sub2='0:s:0?'
+#  _sub2='0:s:0?'
+  _sub2='0:s'
   _sub3='-scodec'
-  _sub4='mov_text'
+#  _sub4='mov_text'
 # _sub4='dvd_subtitle'
-# _sub4='copy'
+ _sub4='copy'
  ;;
+
+# Ignore/strip subtitles.
+  -is|-ignoresub)
+   _sub1=''
+   _sub1=''
+   _sub1=''
+   _sub1=''
+  ;;
 
 # Determine Audio levels
  -level)
@@ -334,7 +366,7 @@ case $opt in
       if [ $_vcodec != 'copy' ] ; then __vID=":${_vcodec}" ; fi
       if [ $_acodec != 'copy' ] ; then __aID=":${_acodec}" ; fi
 
-      if [ $_normalize -eq 1  ]
+      if [ "$_normalize" = "1" ] ;
        then
         echo "Normalize max_volume - Reading line levels for: ${opt}"
         _ll=$( get_max_volume $opt )
@@ -355,7 +387,7 @@ case $opt in
         -movflags faststart \
         -metadata comment="${_name}-${_version}:${_ENCODERBIN}-${_ENCODERVER}${__vID}${__aID}" \
         "$_title1" "$_title2" \
-        $_dest_dir/$(sed 's/\....$/\.mp4/' <<< "$opt")
+        $_dest_dir/$(sed "s/\....\$/\.${_ext}/" <<< "$opt")
        exit
 
       else
@@ -368,7 +400,7 @@ case $opt in
         -movflags faststart \
         -metadata title="$(sed -r 's/\....$// ; s/_/ /g ; s/ S[0-9]{1,2}E[0-9]{1,2}/&:/' <<< $opt)" \
         -metadata comment="${_name}-${_version}:${_ENCODERBIN}-${_ENCODERVER}${__vID}${__aID}" \
-        $_dest_dir/$(sed 's/\....$/\.mp4/' <<< "$opt")
+        $_dest_dir/$(sed "s/\....\$/\.${_ext}/" <<< "$opt")
 
       fi
     fi
