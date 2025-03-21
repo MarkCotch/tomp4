@@ -1,5 +1,5 @@
 #!/bin/bash
-# tomp4 V0.5.1
+# tomp4 V0.5.2
 # Copyright (c) 2015 Written by Mark Coccimiglio (mark@coccimiglio.net)
 # Free for non-commercial use.  If you are making money on the use of this
 # script then contact me with a reasonable offer for licensing.
@@ -12,7 +12,7 @@
 # with Chromecast.  By default we encode with higher audio line levels.
 #
 
-_version='0.5.1'
+_version='0.5.2'
 _name='tomp4'
 _dest_dir="$HOME/mp4"
 _ext='mp4'
@@ -238,9 +238,9 @@ case $opt in
 # Ignore/strip subtitles.
   -is|-ignoresub)
    _sub1=''
-   _sub1=''
-   _sub1=''
-   _sub1=''
+   _sub2=''
+   _sub3=''
+   _sub4=''
   ;;
 
 # Determine Audio levels
