@@ -1,5 +1,5 @@
 #!/bin/bash
-# tomp4 V0.5.2
+# tomp4 V0.5.3
 # Copyright (c) 2015 Written by Mark Coccimiglio (mark@coccimiglio.net)
 # Free for non-commercial use.  If you are making money on the use of this
 # script then contact me with a reasonable offer for licensing.
@@ -12,7 +12,7 @@
 # with Chromecast.  By default we encode with higher audio line levels.
 #
 
-_version='0.5.2'
+_version='0.5.3'
 _name='tomp4'
 _dest_dir="$HOME/mp4"
 _ext='mp4'
@@ -403,7 +403,7 @@ case $opt in
         -strict -2 $_meta1 $_meta2 \
         -map 0:v:${_vstream} $_pixfmt1 $_pixfmt2 $_vf $_scale_vid -vcodec $_vcodec \
         $_sub1 $_sub2 $_sub3 $_sub4 \
-        -map 0:a:${_astream} -acodec $_acodec $_af1 $_af2 -metadata:s:a:1 language=eng \
+        -map 0:a:${_astream}? -acodec $_acodec $_af1 $_af2 -metadata:s:a:1 language=eng \
         -movflags faststart \
         -metadata comment="${_name}-${_version}:${_ENCODERBIN}-${_ENCODERVER}${__vID}${__aID}" \
         "$_title1" "$_title2" \
@@ -416,7 +416,7 @@ case $opt in
         -strict -2 $_meta1 $_meta2 \
         -map 0:v:${_vstream} $_pixfmt1 $_pixfmt2 $_vf $_scale_vid -preset $_vpreset -vcodec $_vcodec \
         $_sub1 $_sub2 $_sub3 $_sub4 \
-        -map 0:a:${_astream} -acodec $_acodec $_af1 $_af2 -metadata:s:a:1 language=eng \
+        -map 0:a:${_astream}? -acodec $_acodec $_af1 $_af2 -metadata:s:a:1 language=eng \
         -movflags faststart \
         -metadata title="$(sed -r 's/\....$// ; s/_/ /g ; s/ S[0-9]{1,2}E[0-9]{1,2}/&:/' <<< $opt)" \
         -metadata comment="${_name}-${_version}:${_ENCODERBIN}-${_ENCODERVER}${__vID}${__aID}" \
