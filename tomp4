@@ -34,7 +34,7 @@ _meta1=''
 _meta2=''
 _normalize=''
 _sub1='-map'
-_sub2='0:s'
+_sub2='0:s:?'
 _sub3='-scodec'
 _sub4='mov_text'
 _title1=''
@@ -230,9 +230,9 @@ case $opt in
 #  _sub2='0:s:0?'
   _sub2='0:s?'
   _sub3='-scodec'
-#  _sub4='mov_text'
+  _sub4='mov_text'
 # _sub4='dvd_subtitle'
- _sub4='copy'
+# _sub4='copy'
  ;;
 
 # Ignore/strip subtitles.
